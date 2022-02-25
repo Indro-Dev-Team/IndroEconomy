@@ -17,26 +17,98 @@
 #     - <amount of $>
 #     - <amount of $>
 
-database:
-  host: localhost # host of your database
-  port: 3306 # default port for MariaDB and MySQL
-  database: indrocraft # name of your database. A database server can contain multiple databases
-  username: root
-  password: blank # if database has no password leave the password as blank
+moneySymbol: $ # the symbol that the plugin will use to present the money with
+symbolPosition: "prefix" # the position of the moneySymbol
+separator: "," # the separator for money formatting
 
 money:
-  moneySymbol: $ # the symbol that the plugin will use to present the money with
+  deathByPoverty: true # are players going to die when they run our of money
+  minimum: -1000000 # the minimum amount of money to have to be considered bankrupt
   deathLossPercent: 10 # when player's die, how much percent of their money do you want them to lose?
   defaultAmount: 200 # what amount do you want players to start with?
+  killerGetsDeathMoney: true # if a player kills another player, do they get your money?
+  killerGetsDeathMoneyPercent: 0.98 # how much money should the killer get from the player
 
+# example for the Block Earning system
 blocks:
+  EMERALD_ORE:
+    - 500
+    - 350
+    - 200
   DIAMOND_ORE:
+    - 200
     - 100
-  COAL_ORE:
+    - 50
+  LAPIS_ORE:
     - 20
-    - 5
+    - 16
+    - 12
+  GOLD_ORE:
+    - 20
+    - 16
+    - 12
+  IRON_ORE:
+    - 10
+    - 8
+    - 6
+  COPPER_ORE:
+    - 6
+    - 4
+    - 2
+  COAL_ORE:
+    - 3
+    - 2
     - 1
 
-shop:
-  shopPrice: 250 # this is the default cost per shop available
-  shopLimit: 5 # this is how many shops a player can have, will be toggleable later on
+  # deepslate versions - 2x rewards
+  DEEPSLATE_EMERALD_ORE:
+    - 1000
+    - 700
+    - 400
+  DEEPSLATE_DIAMOND_ORE:
+    - 400
+    - 200
+    - 100
+  DEEPSLATE_LAPIS_ORE:
+    - 40
+    - 32
+    - 24
+  DEEPSLATE_GOLD_ORE:
+    - 40
+    - 32
+    - 24
+  DEEPSLATE_IRON_ORE:
+    - 20
+    - 16
+    - 12
+  DEEPSLATE_COPPER_ORE:
+    - 12
+    - 8
+    - 4
+  DEEPSLATE_COAL_ORE:
+    - 6
+    - 4
+    - 2
+
+stock:
+  enabled: true # is it allowed?
+  defaultStock: 1000 # how many diamonds do you start with?
+  median: 1000 # how much stock are you expecting?
+  value: 100 # 1 diamond = (value)
+  openTime: 72000 # how many milliseconds should the stock be open in ticks (20 ticks = 1 second)
+
+mobs:
+  enabled: false # should players get money for attacking a mob?
+
+# Use & for color codes.
+# %type% is where the type of transfer will get inserted.
+title-name: "&4[&fIndroEconomy&4]:"
+invalid-args: "&cSyntax Error!"
+player-only: "Sorry but that can only be run by a player!"
+must-be-number: "&cYou need to specify a number, not a word."
+no-permissions: "&cYou don't have permission for that!"
+not-enough-money: "&cYou do not have enough money to do that!"
+transfer-success: "&9Transfer to %type% was successful!"
+transfer-failure: "&cTransfer to %type% failed!"
+
+version: 2.1.3 # should not be changed

@@ -1,7 +1,7 @@
 package io.github.omen44.indroEconomy.events;
 
-import io.github.omen44.indroEconomy.datamanager.ConfigTools;
-import io.github.omen44.indroEconomy.utils.SQLeconomy;
+import io.github.omen44.indroEconomy.IndroEconomy;
+import io.github.omen44.indroEconomy.utils.EconomyUtils;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
@@ -17,15 +17,14 @@ import java.util.List;
 import java.util.Random;
 
 public class EventOnPlayerMine implements Listener {
-    SQLeconomy eco = new SQLeconomy();
-    ConfigTools configTools = new ConfigTools();
+    EconomyUtils eco = new EconomyUtils();
 
     @EventHandler
     public void onPlayerMine(BlockBreakEvent event) {
-        FileConfiguration config = configTools.getConfig("config.yml");
+        FileConfiguration config = IndroEconomy.getInstance().getSavedConfig();
         Player player = event.getPlayer();
         String block = event.getBlock().getType().toString();
-        String symbol = config.getString("money.moneySymbol");
+
 
         List<String> blocks = new ArrayList<>(config.getConfigurationSection("blocks").getKeys(false));
         if (blocks.contains(block) &&
@@ -39,7 +38,7 @@ public class EventOnPlayerMine implements Listener {
             int amount = eco.getWallet(player) + Integer.parseInt(drop);
             eco.setWallet(player, amount);
 
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_GREEN + "+" + symbol + Integer.parseInt(drop)));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_GREEN + "+" + eco.format(Integer.parseInt(drop))));
         }
     }
 }

@@ -1,7 +1,7 @@
-package io.github.omen44.indroEconomy.commands.economy;
+package io.github.indrodevteam.indroEconomy.commands.economy;
 
-import io.github.omen44.indroEconomy.utils.EconomyUtils;
-import io.github.omen44.indroEconomy.utils.Lang;
+import io.github.indrodevteam.indroEconomy.utils.EconomyUtils;
+import io.github.indrodevteam.indroEconomy.utils.LanguageLoader;
 import me.kodysimpson.simpapi.command.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,25 +34,25 @@ public class CommandBal extends SubCommand {
     public void perform(CommandSender commandSender, String[] args) {
         // checks if the sender is a player
         if (!(commandSender instanceof Player player)) {
-            commandSender.sendMessage(Lang.TITLE.toString() + Lang.PLAYER_ONLY);
+            commandSender.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_PLAYER_ONLY);
         } else {
-            EconomyUtils eco = new EconomyUtils();
+            EconomyUtils eco = new EconomyUtils(player);
 
-            int bank;
-            int wallet;
+            long bank;
+            long wallet;
 
             try {
-                wallet = eco.getWallet(player);
-                bank = eco.getBank(player);
+                wallet = eco.getProfile().getWallet();
+                bank = eco.getProfile().getBank();
             } catch (NullPointerException e) {
-                player.sendMessage("Your account doesn't exist, contact an admin to get it fixed");
+                player.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_ACCOUNT_NOT_EXISTING);
                 return;
             }
 
             if (args.length == 2 && args[1].equalsIgnoreCase("bank")) {
-                player.sendMessage(Lang.TITLE + "Bank Balance: " + eco.format(bank));
+                player.sendMessage(LanguageLoader.TITLE + "Bank Balance: " + eco.format(bank));
             } else {
-                player.sendMessage(Lang.TITLE + "Wallet Balance: " + eco.format(wallet));
+                player.sendMessage(LanguageLoader.TITLE + "Wallet Balance: " + eco.format(wallet));
             }
         }
     }

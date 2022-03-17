@@ -1,9 +1,8 @@
-package io.github.omen44.indroEconomy.storage;
+package io.github.indrodevteam.indroEconomy.objects;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.github.omen44.indroEconomy.IndroEconomy;
-import io.github.omen44.indroEconomy.models.PlayerEconomyModel;
+import io.github.indrodevteam.indroEconomy.IndroEconomy;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -17,8 +16,14 @@ public class EconomyStorageUtil {
 
     private static ArrayList<PlayerEconomyModel> economy = new ArrayList<>();
 
-    public static PlayerEconomyModel createAccount(UUID uuid, int wallet, int bank) {
-        PlayerEconomyModel model = new PlayerEconomyModel(uuid, wallet, bank);
+    public static PlayerEconomyModel createAccount (UUID playerUUID,
+                                                        long wallet,
+                                                        long bank,
+                                                        long maxBank,
+                                                        long playerXP,
+                                                        long nextXP,
+                                                        int XpLevel) {
+        PlayerEconomyModel model = new PlayerEconomyModel(playerUUID, wallet, bank, maxBank, playerXP, nextXP, XpLevel);
         economy.add(model);
         return model;
     }

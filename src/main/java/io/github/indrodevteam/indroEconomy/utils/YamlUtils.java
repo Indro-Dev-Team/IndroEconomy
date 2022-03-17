@@ -1,6 +1,6 @@
-package io.github.omen44.indroEconomy.utils;
+package io.github.indrodevteam.indroEconomy.utils;
 
-import io.github.omen44.indroEconomy.IndroEconomy;
+import io.github.indrodevteam.indroEconomy.IndroEconomy;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 

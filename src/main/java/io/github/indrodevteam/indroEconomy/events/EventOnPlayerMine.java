@@ -1,7 +1,8 @@
-package io.github.omen44.indroEconomy.events;
+package io.github.indrodevteam.indroEconomy.events;
 
-import io.github.omen44.indroEconomy.IndroEconomy;
-import io.github.omen44.indroEconomy.utils.EconomyUtils;
+import io.github.indrodevteam.indroEconomy.IndroEconomy;
+import io.github.indrodevteam.indroEconomy.utils.ConfigManager;
+import io.github.indrodevteam.indroEconomy.utils.EconomyUtils;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
@@ -17,12 +18,13 @@ import java.util.List;
 import java.util.Random;
 
 public class EventOnPlayerMine implements Listener {
-    EconomyUtils eco = new EconomyUtils();
+
 
     @EventHandler
     public void onPlayerMine(BlockBreakEvent event) {
-        FileConfiguration config = IndroEconomy.getInstance().getSavedConfig();
+        FileConfiguration config = new ConfigManager("config.yml", true).config;
         Player player = event.getPlayer();
+        EconomyUtils eco = new EconomyUtils(player);
         String block = event.getBlock().getType().toString();
 
 
@@ -35,10 +37,10 @@ public class EventOnPlayerMine implements Listener {
             Random random = new Random();
             String drop = drops.get(random.nextInt(drops.size()));
 
-            int amount = eco.getWallet(player) + Integer.parseInt(drop);
-            eco.setWallet(player, amount);
+            long amount = Long.parseLong(drop);
+            eco.changeWallet(amount);
 
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_GREEN + "+" + eco.format(Integer.parseInt(drop))));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_GREEN + "+" + EconomyUtils.format(Integer.parseInt(drop))));
         }
     }
 }

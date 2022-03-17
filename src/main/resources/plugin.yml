@@ -1,8 +1,12 @@
 name: IndroEconomy
-version: 2.1.3
-main: io.github.omen44.indroEconomy.IndroEconomy
+version: ${project.version}
+main: io.github.indrodevteam.indroEconomy.IndroEconomy
 api-version: 1.17
 load: STARTUP
 softdepend:
   - Vault
-permissions: {"indroEconomy.stock", "indroEconomy.stock.insider", "indroEconomy.admin.setMoney", "indroEconomy.admin.reload"}
+permissions:
+  indroEconomy.admin.setMoney:
+    default: op
+  indroEconomy.admin.reload:
+    default: op

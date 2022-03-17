@@ -1,15 +1,14 @@
-package io.github.omen44.indroEconomy.commands.economy;
+package io.github.indrodevteam.indroEconomy.commands.economy;
 
-import io.github.omen44.indroEconomy.menus.OpShopMenu;
-import io.github.omen44.indroEconomy.utils.Lang;
+import io.github.indrodevteam.indroEconomy.menus.OpShopMenu;
+import io.github.indrodevteam.indroEconomy.utils.LanguageLoader;
 import me.kodysimpson.simpapi.command.SubCommand;
 import me.kodysimpson.simpapi.exceptions.MenuManagerException;
 import me.kodysimpson.simpapi.exceptions.MenuManagerNotSetupException;
 import me.kodysimpson.simpapi.menu.MenuManager;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
+import org.intellij.lang.annotations.Language;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class CommandOpShop extends SubCommand {
     @Override
     public void perform(CommandSender commandSender, String[] strings) {
         if (!(commandSender instanceof Player player)) {
-            commandSender.sendMessage(Lang.TITLE.toString() + Lang.PLAYER_ONLY);
+            commandSender.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_NO_PERMISSION);
         } else {
             try {
                 MenuManager.openMenu(OpShopMenu.class, player);

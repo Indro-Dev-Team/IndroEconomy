@@ -1,7 +1,8 @@
-package io.github.omen44.indroEconomy.commands.economy;
+package io.github.indrodevteam.indroEconomy.commands.economy;
 
-import io.github.omen44.indroEconomy.utils.EconomyUtils;
-import io.github.omen44.indroEconomy.utils.Lang;
+import io.github.indrodevteam.indroEconomy.objects.EconomyStorageUtil;
+import io.github.indrodevteam.indroEconomy.utils.EconomyUtils;
+import io.github.indrodevteam.indroEconomy.utils.LanguageLoader;
 import me.kodysimpson.simpapi.command.SubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,9 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.github.omen44.indroEconomy.utils.ShortcutsUtils.mNormal;
-import static io.github.omen44.indroEconomy.utils.ShortcutsUtils.mWarning;
+import java.util.UUID;
 
 public class CommandSend extends SubCommand {
     @Override
@@ -38,32 +37,33 @@ public class CommandSend extends SubCommand {
     @Override
     public void perform(CommandSender commandSender, String[] args) {
         if (!(commandSender instanceof Player player)) {
-            commandSender.sendMessage(Lang.TITLE.toString() + Lang.PLAYER_ONLY);
+            commandSender.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_PLAYER_ONLY);
         } else {
-            EconomyUtils eco = new EconomyUtils();
+            EconomyUtils eco = new EconomyUtils(player);
 
             // /eco pay <player> <amount>
             if (args.length > 3) {
-                Player target = Bukkit.getPlayer(args[1]);
-                int amount;
+                Player target = Bukkit.getPlayer(UUID.fromString(args[1]));
+                long amount;
 
                 // error checkers
-                if (target == null || !eco.hasAccount(target)) {
-                    player.sendMessage(mWarning + "<target> must be a valid Minecraft Username, and have joined at least once!");
+                if (target == null || EconomyStorageUtil.findAccount(target.getUniqueId()) != null) {
+                    player.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_ACCOUNT_NOT_EXISTING);
                     return;
                 }
+
                 if (!(args[2].equalsIgnoreCase("max"))) {
                     try {
-                        amount = Integer.parseInt(args[2]);
+                        amount = Long.parseLong(args[2]);
                     } catch (NumberFormatException e) {
-                        player.sendMessage(mNormal + "<amount> must be a positive, non-negative integer!");
+                        player.sendMessage(LanguageLoader.TITLE + "<amount> must be positive, non-negative and smaller than " + eco.format(1000000000) + "!");
                         return;
                     }
                 } else {
-                    amount = eco.getWallet(player);
+                    amount = eco.getProfile().getWallet();
                     if (args[3] == null) {
                         player.sendMessage(String.format("%s Are you sure you want to transfer %s to %s?",
-                                Lang.TITLE, eco.format(amount), args[1]));
+                                LanguageLoader.TITLE, EconomyUtils.format(amount), args[1]));
                         player.sendMessage(String.format("To confirm, do /eco pay %s %s confirm", args[1], args[2]));
                         return;
                     } else if (!(args[3].equalsIgnoreCase("confirm"))) {
@@ -74,16 +74,16 @@ public class CommandSend extends SubCommand {
                 }
 
                 // transferring amounts to players
-                boolean result = eco.sendMoney(player, target, amount);
-                String formatted = eco.format(amount);
+                boolean result = eco.transferToPlayer(target, amount);
+                String formatted = EconomyUtils.format(amount);
                 if (result) {
-                    player.sendMessage(String.format(Lang.TITLE + "Payment was Successful, sent %s to %s", formatted, target.getName()));
-                    target.sendMessage(String.format(Lang.TITLE + "Received %s from %s", formatted, player.getName()));
+                    player.sendMessage(String.format(LanguageLoader.TITLE + "Payment was Successful, sent %s to %s", formatted, target.getName()));
+                    target.sendMessage(String.format(LanguageLoader.TITLE + "Received %s from %s", formatted, player.getName()));
                 } else {
-                    player.sendMessage(mWarning + "Payment could not be done, cancelling transaction!");
+                    player.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.TRANSFER_FAILURE);
                 }
             } else {
-                player.sendMessage(String.valueOf(Lang.INVALID_ARGS));
+                player.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_INVALID_SYNTAX);
             }
         }
     }

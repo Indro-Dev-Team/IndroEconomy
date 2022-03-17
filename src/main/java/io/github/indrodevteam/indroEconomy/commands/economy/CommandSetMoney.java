@@ -1,6 +1,9 @@
-package io.github.omen44.indroEconomy.commands.economy;
+package io.github.indrodevteam.indroEconomy.commands.economy;
 
-import io.github.omen44.indroEconomy.utils.EconomyUtils;
+import io.github.indrodevteam.indroEconomy.objects.EconomyStorageUtil;
+import io.github.indrodevteam.indroEconomy.objects.PlayerEconomyModel;
+import io.github.indrodevteam.indroEconomy.utils.EconomyUtils;
+import io.github.indrodevteam.indroEconomy.utils.LanguageLoader;
 import me.kodysimpson.simpapi.colors.ColorTranslator;
 import me.kodysimpson.simpapi.command.SubCommand;
 import org.bukkit.Bukkit;
@@ -10,13 +13,9 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.omen44.indroEconomy.utils.ShortcutsUtils.*;
-
 /*
     This class implements:
         - /setmoney <bank/wallet> <target> <amount>
-
-    TODO: add a way for the console to edit usernames
 */
 
 public class CommandSetMoney extends SubCommand {
@@ -42,40 +41,42 @@ public class CommandSetMoney extends SubCommand {
 
     @Override
     public void perform(CommandSender commandSender, String[] args) {
-        EconomyUtils eco = new EconomyUtils();
-        if (commandSender.hasPermission("indroEconomy.admin.setMoney")) {
+        if (commandSender.isOp()) {
             if (args.length == 4) {
                 // initialising values
                 final String type = args[1];
                 final Player target = Bukkit.getPlayer(args[2]);
-                int amount;
+                long amount;
 
                 try {
-                    amount = Integer.parseInt(args[3]);
+                    amount = Long.parseLong(args[3]);
                 } catch (NumberFormatException e) {
-                    commandSender.sendMessage(mNormal + "<amount> must be a positive, non-negative integer!");
+                    commandSender.sendMessage(LanguageLoader.TITLE + "<amount> must be positive, and smaller than $18,446,744,073,709,551,615!");
                     return;
                 }
 
-                if (target == null || !eco.hasAccount(target)) {
-                    commandSender.sendMessage(mWarning + "<target> must be a valid Minecraft Username, and have joined at least once!");
+
+                // error checkers
+                if (target == null || EconomyStorageUtil.findAccount(target.getUniqueId()) == null) {
+                    commandSender.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_ACCOUNT_NOT_EXISTING);
                     return;
                 }
+                EconomyUtils eco = new EconomyUtils(target);
 
                 if (type.equals("wallet")) {
-                    eco.setWallet(target, amount);
-                    String formatted = eco.format(eco.getWallet(target));
+                    eco.getProfile().setWallet(amount);
+                    String formatted = EconomyUtils.format(eco.getProfile().getWallet());
                     commandSender.sendMessage(ColorTranslator.translateColorCodes("&fSet &a" + target.getName() + "'s &fwallet to " + formatted));
                 } else if (type.equals("bank")) {
-                    eco.setBank(target, amount);
-                    String formatted = eco.format(eco.getBank(target));
+                    eco.getProfile().setBank(amount);
+                    String formatted = EconomyUtils.format(eco.getProfile().getBank());
                     commandSender.sendMessage(ColorTranslator.translateColorCodes("&fSet &a" + target.getName() + "'s &fbank to " + formatted));
                 }
             } else {
-                commandSender.sendMessage(mWarning + "Syntax Error! \n" + mWarning + "Format: /eco setmoney <player> <amount>");
+                commandSender.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_INVALID_SYNTAX);
             }
         } else {
-            commandSender.sendMessage(mError + "You do not have permission to do this!");
+            commandSender.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_NO_PERMISSION);
         }
     }
 
@@ -85,18 +86,13 @@ public class CommandSetMoney extends SubCommand {
         if (args.length == 2) {
             arguments.add("bank");
             arguments.add("wallet");
-            return arguments;
-        }
-        if (args.length == 3) {
-            for (Player player1: Bukkit.getOnlinePlayers()) {
-                arguments.add(player1.getName());
+        } else if (args.length == 3) {
+            for (PlayerEconomyModel profile: EconomyStorageUtil.findAllAccounts()) {
+                arguments.add(Bukkit.getOfflinePlayer(profile.getPlayerUUID()).getName());
             }
-            return arguments;
-        }
-        if (args.length == 4) {
+        } else if (args.length == 4) {
             arguments.add("<amount>");
-            return arguments;
         }
-        return null;
+        return arguments;
     }
 }

@@ -1,8 +1,12 @@
-package io.github.omen44.indroEconomy.menus;
+package io.github.indrodevteam.indroEconomy.menus;
 
-import io.github.omen44.indroEconomy.utils.EconomyUtils;
+import io.github.indrodevteam.indroEconomy.objects.PlayerEconomyModel;
+import io.github.indrodevteam.indroEconomy.utils.EconomyUtils;
+import io.github.indrodevteam.indroEconomy.utils.LanguageLoader;
+import me.kodysimpson.simpapi.colors.ColorTranslator;
 import me.kodysimpson.simpapi.exceptions.MenuManagerException;
 import me.kodysimpson.simpapi.exceptions.MenuManagerNotSetupException;
+import me.kodysimpson.simpapi.heads.SkullCreator;
 import me.kodysimpson.simpapi.menu.Menu;
 import me.kodysimpson.simpapi.menu.PlayerMenuUtility;
 import org.bukkit.ChatColor;
@@ -12,12 +16,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-import static io.github.omen44.indroEconomy.utils.ShortcutsUtils.mNormal;
-import static io.github.omen44.indroEconomy.utils.ShortcutsUtils.mWarning;
 
 public class OpShopMenu extends Menu {
     public OpShopMenu(PlayerMenuUtility playerMenuUtility) {
@@ -47,23 +51,24 @@ public class OpShopMenu extends Menu {
         String itemName = itemStack.getItemMeta().getDisplayName();
         Player player = (Player) inventoryClickEvent.getWhoClicked();
 
-        EconomyUtils eco = new EconomyUtils();
-
+        EconomyUtils eco = new EconomyUtils(player);
+        PlayerEconomyModel profile;
         try {
-            int wallet = eco.getWallet(player);
+            profile = eco.getProfile();
         } catch (NullPointerException e) {
-            player.sendMessage("Your account doesn't exist, contact an admin to get it fixed");
+            player.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_ACCOUNT_NOT_EXISTING);
             return;
         }
 
         int extraEnchChance;
         int overlevelChance;
         int maxEnchants;
-
+        String boughtItem = "null";
+        
         switch (itemName) {
             case "Tier 1" -> {
-                if (eco.getWallet(player) >= 2500) {
-                    eco.minusWallet(player, 2500);
+                if (profile.getWallet() >= 2500) {
+                    eco.changeWallet(-2500);
 
                     //init chance gates
                     extraEnchChance = 25;
@@ -73,15 +78,16 @@ public class OpShopMenu extends Menu {
                     ItemStack book = new ItemStack(Material.ENCHANTED_BOOK, 1);
                     ItemStack enchBook = generateEnchants(book, maxEnchants, overlevelChance, extraEnchChance);
                     player.getInventory().addItem(enchBook);
+                    boughtItem = "Tier 1 Enchanted Book";
                 } else {
-                    player.sendMessage(mWarning + "Sorry, you don't have enough money to buy this");
+                    player.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_NO_MONEY);
                     return;
                 }
             }
 
             case "Tier 2" -> {
-                if (eco.getWallet(player) >= 16500) {
-                    eco.minusWallet(player, 16500);
+                if (profile.getWallet() >= 16500) {
+                    eco.changeWallet(-16500);
 
                     //init chance gates
                     extraEnchChance = 50;
@@ -91,15 +97,16 @@ public class OpShopMenu extends Menu {
                     ItemStack book = new ItemStack(Material.ENCHANTED_BOOK, 1);
                     ItemStack enchBook = generateEnchants(book, maxEnchants, overlevelChance, extraEnchChance);
                     player.getInventory().addItem(enchBook);
+                    boughtItem = "Tier 2 Enchanted Book";
                 } else {
-                    player.sendMessage(mWarning + "Sorry, you don't have enough money to buy this");
+                    player.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_NO_MONEY);
                     return;
                 }
             }
 
             case "Tier 3" -> {
-                if (eco.getWallet(player) >= 24550) {
-                    eco.minusWallet(player, 24500);
+                if (profile.getWallet() >= 24550) {
+                    eco.changeWallet(-24500);
 
                     //init chance gates
                     extraEnchChance = 75;
@@ -109,18 +116,38 @@ public class OpShopMenu extends Menu {
                     ItemStack book = new ItemStack(Material.ENCHANTED_BOOK, 1);
                     ItemStack enchBook = generateEnchants(book, maxEnchants, overlevelChance, extraEnchChance);
                     player.getInventory().addItem(enchBook);
+                    boughtItem = "Tier 1 Enchanted Book";
                 } else {
-                    player.sendMessage(mWarning + "Sorry, you don't have enough money to buy this");
+                    player.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_NO_MONEY);
                     return;
                 }
             }
+            case "Loot Crate" -> {
+                if (profile.getWallet() >= 24550) {
+                    eco.changeBank(-24500);
+
+                    ItemStack crate = SkullCreator.itemFromUrl("http://textures.minecraft.net/texture/e34a3619dc66fc5f940f69aa331e588b5285f6e2e9981b8f93b99916c294b48");
+                    ItemMeta crateMeta = crate.getItemMeta();
+                    assert crateMeta != null;
+                    crateMeta.setDisplayName(ChatColor.AQUA + "Loot Crate");
+                    List<String> lore = new ArrayList<>();
+                    lore.add(ColorTranslator.translateColorCodes("&5This crate can give you good, &kor bad luck!"));
+                    lore.add(ColorTranslator.translateColorCodes("&5Interact with this item to open it!"));
+                    lore.add(ChatColor.DARK_PURPLE + "Costs " + EconomyUtils.format(24500));
+                    crateMeta.setLore(lore);
+                    crateMeta.setLocalizedName("Loot Crate");
+                    crate.setItemMeta(crateMeta);
+
+                    player.getInventory().addItem(crate);
+                    boughtItem = "Loot Box";
+                }
+            }
         }
-        player.sendMessage(mNormal + "Recieved an enchanted book!");
+        player.sendMessage("Bought a " + boughtItem + "!");
     }
 
     @Override
     public void setMenuItems() {
-
         ItemStack tierOne = makeItem(Material.ENCHANTED_BOOK, "Tier 1",
                 ChatColor.BOLD + "Costs $2,500",
                         "Guaranteed max level enchants.",
@@ -134,9 +161,22 @@ public class OpShopMenu extends Menu {
                         "Guaranteed max level enchants.",
                         "75% chance for an extra enchant, for a max of 5.");
 
+        ItemStack crate = SkullCreator.itemFromUrl("http://textures.minecraft.net/texture/e34a3619dc66fc5f940f69aa331e588b5285f6e2e9981b8f93b99916c294b48");
+        ItemMeta crateMeta = crate.getItemMeta();
+        assert crateMeta != null;
+        crateMeta.setDisplayName("Loot Crate");
+        List<String> lore = new ArrayList<>();
+        lore.add(ColorTranslator.translateColorCodes("&5This crate can give you good, &kor bad luck!"));
+        lore.add(ColorTranslator.translateColorCodes("&5Interact with this item to open it!"));
+        lore.add(ChatColor.DARK_PURPLE + "Costs " + EconomyUtils.format(24500));
+        crateMeta.setLore(lore);
+        crateMeta.setLocalizedName("Loot Crate");
+        crate.setItemMeta(crateMeta);
+
         inventory.setItem(3, tierOne);
         inventory.setItem(4, tierTwo);
         inventory.setItem(5, tierThree);
+        inventory.setItem(7, crate);
 
         setFillerGlass();
     }

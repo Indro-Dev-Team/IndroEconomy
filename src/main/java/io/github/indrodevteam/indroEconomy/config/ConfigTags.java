@@ -16,12 +16,11 @@ public enum ConfigTags {
 
     final Object defaultValue;
     final String path;
-    final YamlConfiguration config;
+    final YamlConfiguration config = new ConfigManager("config.yml", true).config;
 
     ConfigTags(String path, Object defaultValue) {
         this.path = path;
         this.defaultValue = defaultValue;
-        config = new ConfigManager("config.yml", true).config;
     }
 
     public Object get() {

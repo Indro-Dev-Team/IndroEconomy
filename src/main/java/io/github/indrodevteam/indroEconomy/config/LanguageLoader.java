@@ -1,4 +1,4 @@
-package io.github.indrodevteam.indroEconomy.utils;
+package io.github.indrodevteam.indroEconomy.config;
 
 import me.kodysimpson.simpapi.colors.ColorTranslator;
 
@@ -24,8 +24,8 @@ public enum LanguageLoader {
         this.message = message;
     }
 
-    @Override
-    public String toString() {
+    public String get() {
         return ColorTranslator.translateColorCodes(message);
     }
 }
+

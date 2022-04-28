@@ -1,14 +1,12 @@
-package io.github.indrodevteam.indroEconomy.commands.economy;
+package io.github.indrodevteam.indroEconomy.commands.accounts;
 
 import io.github.indrodevteam.indroEconomy.menus.OpShopMenu;
-import io.github.indrodevteam.indroEconomy.utils.LanguageLoader;
 import me.kodysimpson.simpapi.command.SubCommand;
 import me.kodysimpson.simpapi.exceptions.MenuManagerException;
 import me.kodysimpson.simpapi.exceptions.MenuManagerNotSetupException;
 import me.kodysimpson.simpapi.menu.MenuManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.intellij.lang.annotations.Language;
 
 import java.util.List;
 
@@ -35,9 +33,7 @@ public class CommandOpShop extends SubCommand {
 
     @Override
     public void perform(CommandSender commandSender, String[] strings) {
-        if (!(commandSender instanceof Player player)) {
-            commandSender.sendMessage(LanguageLoader.TITLE.toString() + LanguageLoader.ERROR_NO_PERMISSION);
-        } else {
+        if (commandSender instanceof Player player) {
             try {
                 MenuManager.openMenu(OpShopMenu.class, player);
             } catch (MenuManagerException | MenuManagerNotSetupException e) {
@@ -51,3 +47,4 @@ public class CommandOpShop extends SubCommand {
         return null;
     }
 }
+

@@ -1,12 +1,10 @@
 name: IndroEconomy
-version: ${project.version}
+version: '${project.version}'
 main: io.github.indrodevteam.indroEconomy.IndroEconomy
 api-version: 1.17
 load: STARTUP
-softdepend:
-  - Vault
+softdepend: [ Vault ]
+authors: [ _skyQuiz ]
 permissions:
-  indroEconomy.admin.setMoney:
-    default: op
-  indroEconomy.admin.reload:
+  indroEconomy.admin:
     default: op

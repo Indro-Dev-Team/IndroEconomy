@@ -1,10 +1,9 @@
 package io.github.indrodevteam.indroEconomy.events;
 
+import io.github.indrodevteam.indroEconomy.EconomyUtils;
 import io.github.indrodevteam.indroEconomy.IndroEconomy;
-import io.github.indrodevteam.indroEconomy.utils.ConfigManager;
-import io.github.indrodevteam.indroEconomy.utils.EconomyUtils;
-import io.github.indrodevteam.indroEconomy.utils.LanguageLoader;
-import org.bukkit.configuration.file.FileConfiguration;
+import io.github.indrodevteam.indroEconomy.config.ConfigTags;
+import io.github.indrodevteam.indroEconomy.config.LanguageLoader;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,14 +13,18 @@ import org.bukkit.metadata.MetadataValue;
 import java.util.List;
 
 public class EventOnPlayerDeath implements Listener {
+    EconomyUtils eco = new EconomyUtils();
+
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        FileConfiguration config = new ConfigManager("config.yml", true).config;
-        final long defaultAmount = config.getInt("money.defaultMoney");
+        final int defaultAmount = (int) ConfigTags.MONEY_DEFAULT_AMOUNT.get();
+        final int deathLossPercent = (int) ConfigTags.DEATH_LOSS_PERCENT.get();
+        final boolean killerGainsDeathMoney = (boolean) ConfigTags.DEATH_KILLER_GAIN_PERCENT.get();
+        final double killerGainsPercent = (int) ConfigTags.DEATH_KILLER_GAIN_PERCENT.get();
+        final boolean deathByPoverty = (boolean) ConfigTags.POVERTY_PERMITTED.get();
 
         //initialise the values needed
         Player player = event.getEntity();
-        EconomyUtils eco = new EconomyUtils(player);
         boolean deathCausePoverty = false;
         if (player.hasMetadata("deathCausePoverty")) {
             List<MetadataValue> keys = player.getMetadata("deathCausePoverty");
@@ -34,30 +37,28 @@ public class EventOnPlayerDeath implements Listener {
         }
 
         if (!deathCausePoverty) {
-            long wallet = eco.getProfile().getWallet();
+            int wallet = eco.getAccount(player).getBalance();
             double moneyLost = 0;
             if (wallet > 0) {
-                moneyLost = wallet * (config.getInt("money.deathLossPercent") / -100.0);
+                moneyLost = wallet * (deathLossPercent / 100.0);
             }
 
             //reduce their wallet by the percentage
-            player.sendMessage(LanguageLoader.TITLE + "You have died and lost " + EconomyUtils.format((long) moneyLost * -1));
-            eco.changeWallet((long) moneyLost);
+            player.sendMessage(LanguageLoader.TITLE.get() + "You have died and lost " + EconomyUtils.format((int) moneyLost));
+            eco.changeBalance(player, (int) -moneyLost);
 
-            if (event.getEntity().getKiller() != null && config.getBoolean("money.killerGetsDeathMoney")) {
+            if (event.getEntity().getKiller() != null && killerGainsDeathMoney) {
                 Player killer = event.getEntity().getKiller();
-                EconomyUtils killerProfile = new EconomyUtils(killer);
-                long moneyGained = (long) (moneyLost * config.getDouble("money.killerGetsDeathMoneyPercent"));
-                killerProfile.changeWallet(moneyGained);
+                int moneyGained = (int) (moneyLost * killerGainsPercent);
+                eco.changeBalance(killer, moneyGained);
                 String formatted = EconomyUtils.format(moneyGained);
-                killer.sendMessage(String.format("%s You stole %s from %s", LanguageLoader.TITLE, formatted, player.getName()));
+                killer.sendMessage(String.format("%s You stole %s from %s", LanguageLoader.TITLE.get(), formatted, player.getName()));
             }
-        } else if (config.getBoolean("deathByPoverty")) {
-            event.setDeathMessage(player.getName() + " couldn't catch up to capitalism");
+        } else if (deathByPoverty) {
+            event.setDeathMessage(player.getName() + " discovered the dark side to capitalism");
             player.removeMetadata("deathCausePoverty", IndroEconomy.getInstance());
-            player.sendMessage(LanguageLoader.TITLE + "Resetting your wallet and bank, since you ran out of money!");
-            eco.getProfile().setWallet(defaultAmount);
-            eco.getProfile().setBank(0);
+            player.sendMessage(LanguageLoader.TITLE.get() + "Resetting your wallet and bank, since you ran out of money!");
+            eco.changeBalance(player, defaultAmount);
         }
     }
 }

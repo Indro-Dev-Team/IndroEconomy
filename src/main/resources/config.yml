@@ -93,8 +93,4 @@ blocks:
 mobs:
   enabled: false # should players get money for attacking a mob?
 
-lootbox:
-  enabled: true
-  chance: 0.01
-
 version: ${project.version} # should not be changed

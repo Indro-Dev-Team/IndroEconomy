@@ -1,4 +1,4 @@
-package io.github.indrodevteam.indroEconomy.utils;
+package io.github.indrodevteam.indroEconomy.config;
 
 import io.github.indrodevteam.indroEconomy.IndroEconomy;
 import org.bukkit.Bukkit;
@@ -94,7 +94,14 @@ public class ConfigManager {
             logger.info("[IndroEconomy] Checking if the file " + resourceName + " is up to date");
         }
 
-        List<String> changes = updateFileConfig(IndroEconomy.getInstance().getResource(resourceName));
+        InputStream resource = IndroEconomy.getInstance().getResource(resourceName);
+
+        if (resource == null) {
+            logger.warning("Critical error with resource locating, contact the developer!");
+            return;
+        }
+
+        List<String> changes = updateFileConfig(resource);
 
         if (log) {
             if (changes.isEmpty()) {
@@ -195,5 +202,4 @@ public class ConfigManager {
     public String getFilePath() {
         return filePath;
     }
-
 }

@@ -1,4 +1,10 @@
 # IndroEconomy
+
+# This program is now considered abandoned while we consider a rewrite to be more user-friendly
+
+
+## Defunct Programming
+
 Economy plugin by OMEN44
 
 This is a economy plugin that uses MariaDB to save data.
